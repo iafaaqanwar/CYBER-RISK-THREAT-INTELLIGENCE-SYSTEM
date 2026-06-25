@@ -518,22 +518,6 @@ The `data/` directory contains:
 - ✅ **WAL mode** — SQLite Write-Ahead Logging for safe concurrent access
 - ✅ **Environment-based keys** — Secrets loaded from `.env`, never hardcoded in production
 
----
-
-## 🤝 Team
-
-<div align="center">
-
-| Member | Role |
-|---|---|
-| **Afaaq Anwar** | Project Lead & Full-Stack Development |
-| **Ahsan** | ML Pipeline & Data Engineering |
-| **Arslan** | Prolog Knowledge Base & Logic AI |
-| **Taimoor** | Security Architecture & Encryption |
-
-</div>
-
----
 
 ## 📜 License
 
