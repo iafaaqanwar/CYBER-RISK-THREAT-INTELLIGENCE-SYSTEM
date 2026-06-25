@@ -1,0 +1,1325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Cyber Risk & Threat Intelligence System — Real-time ML-powered threat detection, Prolog-based diagnosis, and Zero Trust encrypted vault logging.">
+    <title>Cyber Risk & Threat Intelligence System</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        /* ═══════════════ GLOBAL POLISH ═══════════════ */
+        ::selection {
+            background: rgba(99, 102, 241, 0.35);
+            color: #fff;
+        }
+        ::-moz-selection {
+            background: rgba(99, 102, 241, 0.35);
+            color: #fff;
+        }
+        :focus-visible {
+            outline: 2px solid var(--primary);
+            outline-offset: 2px;
+        }
+        @media print {
+            .scene, .orb, .grid-bg { display: none !important; }
+            body { background: #fff !important; color: #000 !important; }
+        }
+
+        :root {
+            --bg-deep:       #030014;
+            --bg-card:       rgba(12, 14, 28, 0.75);
+            --glass-border:  rgba(255, 255, 255, 0.06);
+            --glass-shine:   rgba(255, 255, 255, 0.03);
+            --input-bg:      rgba(255, 255, 255, 0.04);
+            --input-border:  rgba(255, 255, 255, 0.08);
+            --input-focus:   #6366f1;
+            --primary:       #6366f1;
+            --primary-glow:  rgba(99, 102, 241, 0.35);
+            --accent:        #818cf8;
+            --accent2:       #a78bfa;
+            --text-white:    #f1f5f9;
+            --text-dim:      #94a3b8;
+            --text-muted:    #64748b;
+            --success:       #34d399;
+            --error:         #f87171;
+        }
+
+        html, body {
+            height: auto;
+            min-height: 100%;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-deep);
+            color: var(--text-white);
+            overflow-x: hidden;
+            overflow-y: auto;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* ═══════════════ ANIMATED BACKGROUND ═══════════════ */
+        .scene {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+        }
+
+        /* Noise grain overlay */
+        .scene::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.7' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+            background-repeat: repeat;
+            pointer-events: none;
+            z-index: 2;
+        }
+
+        /* ═══════════════ PARTICLE CANVAS ═══════════════ */
+        #particle-canvas {
+            position: fixed;
+            inset: 0;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        /* Grid pattern */
+        .grid-bg {
+            position: absolute;
+            inset: 0;
+            background-image:
+                linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+            background-size: 60px 60px;
+            mask-image: radial-gradient(ellipse 60% 60% at 50% 50%, black 20%, transparent 70%);
+            -webkit-mask-image: radial-gradient(ellipse 60% 60% at 50% 50%, black 20%, transparent 70%);
+        }
+
+        /* Aurora gradient orbs */
+        .orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.5;
+            will-change: transform;
+        }
+        .orb-1 {
+            width: 600px; height: 600px;
+            background: radial-gradient(circle, rgba(99,102,241,0.4), transparent 70%);
+            top: -15%; left: -10%;
+            animation: orbit1 20s ease-in-out infinite;
+        }
+        .orb-2 {
+            width: 500px; height: 500px;
+            background: radial-gradient(circle, rgba(139,92,246,0.3), transparent 70%);
+            bottom: -15%; right: -10%;
+            animation: orbit2 25s ease-in-out infinite;
+        }
+        .orb-3 {
+            width: 400px; height: 400px;
+            background: radial-gradient(circle, rgba(59,130,246,0.25), transparent 70%);
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            animation: orbit3 18s ease-in-out infinite;
+        }
+
+        @keyframes orbit1 {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            33% { transform: translate(80px, 40px) scale(1.1); }
+            66% { transform: translate(-40px, 60px) scale(0.95); }
+        }
+        @keyframes orbit2 {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            33% { transform: translate(-60px, -50px) scale(1.08); }
+            66% { transform: translate(50px, -30px) scale(0.92); }
+        }
+        @keyframes orbit3 {
+            0%, 100% { transform: translate(-50%, -50%) scale(1); }
+            50% { transform: translate(-50%, -50%) scale(1.15); }
+        }
+
+        /* ═══════════════ MAIN LAYOUT ═══════════════ */
+        .page {
+            position: relative;
+            z-index: 10;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            min-height: 100vh;
+            padding: 80px 24px;
+            gap: 120px;
+            width: 100%;
+        }
+
+        /* ═══════════════ INTRO CARD ═══════════════ */
+        .auth-card {
+            width: 100%;
+            max-width: 920px;
+            display: grid;
+            grid-template-columns: 1fr 1.15fr;
+            background: var(--bg-card);
+            backdrop-filter: blur(40px) saturate(1.2);
+            -webkit-backdrop-filter: blur(40px) saturate(1.2);
+            border: 1px solid var(--glass-border);
+            border-radius: 28px;
+            overflow: hidden;
+            box-shadow:
+                0 0 0 1px rgba(255,255,255,0.03) inset,
+                0 30px 80px rgba(0,0,0,0.6),
+                0 0 120px rgba(99,102,241,0.06);
+            animation: cardEntry 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
+        }
+
+        @keyframes cardEntry {
+            from { opacity: 0; transform: translateY(30px) scale(0.97); }
+            to   { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        /* ═══════ LEFT PANEL — Branding ═══════ */
+        .brand-panel {
+            position: relative;
+            padding: 48px 40px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            overflow: hidden;
+            background:
+                linear-gradient(135deg, rgba(99,102,241,0.08) 0%, rgba(139,92,246,0.05) 100%);
+            border-right: 1px solid var(--glass-border);
+        }
+
+        .brand-panel::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at 30% 70%, rgba(99,102,241,0.12), transparent 60%);
+            animation: brandPulse 8s ease-in-out infinite;
+        }
+
+        @keyframes brandPulse {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 1; }
+        }
+
+        .brand-content {
+            position: relative;
+            z-index: 2;
+        }
+
+        .brand-logo {
+            width: 56px;
+            height: 56px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--accent2) 100%);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 26px;
+            margin-bottom: 32px;
+            box-shadow: 0 8px 32px var(--primary-glow);
+            position: relative;
+        }
+
+        .brand-logo::after {
+            content: '';
+            position: absolute;
+            inset: -2px;
+            border-radius: 18px;
+            background: linear-gradient(135deg, var(--primary), var(--accent2));
+            z-index: -1;
+            filter: blur(12px);
+            opacity: 0.4;
+        }
+
+        .brand-logo::before {
+            content: '';
+            position: absolute;
+            inset: -6px;
+            border-radius: 20px;
+            border: 2px solid var(--primary);
+            opacity: 0;
+            animation: pulseRing 2.5s ease-out infinite;
+        }
+
+        @keyframes pulseRing {
+            0%   { opacity: 0.6; transform: scale(1); }
+            70%  { opacity: 0; transform: scale(1.45); }
+            100% { opacity: 0; transform: scale(1.45); }
+        }
+
+        .brand-title {
+            font-size: 28px;
+            font-weight: 800;
+            letter-spacing: -0.8px;
+            line-height: 1.15;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #fff 30%, var(--accent) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .brand-subtitle {
+            font-size: 14px;
+            color: var(--text-dim);
+            line-height: 1.6;
+            margin-bottom: 40px;
+        }
+
+        .typing-cursor {
+            display: inline-block;
+            width: 2px;
+            height: 1em;
+            background: var(--accent);
+            margin-left: 2px;
+            vertical-align: text-bottom;
+            animation: cursorBlink 0.7s ease-in-out infinite;
+        }
+        @keyframes cursorBlink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+
+        .features {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .feature {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            animation: featureFade 0.6s ease both;
+        }
+        .feature:nth-child(1) { animation-delay: 0.3s; }
+        .feature:nth-child(2) { animation-delay: 0.45s; }
+        .feature:nth-child(3) { animation-delay: 0.6s; }
+        .feature:nth-child(4) { animation-delay: 0.75s; }
+
+        @keyframes featureFade {
+            from { opacity: 0; transform: translateX(-12px); }
+            to   { opacity: 1; transform: translateX(0); }
+        }
+
+        .feature-dot {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            flex-shrink: 0;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.06);
+        }
+
+        .feature-text {
+            font-size: 13px;
+            color: var(--text-dim);
+            font-weight: 500;
+        }
+        .feature-text strong {
+            color: var(--text-white);
+            font-weight: 600;
+        }
+
+        /* ═══════ RIGHT PANEL — Access ═══════ */
+        .form-panel {
+            padding: 48px 44px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .form-header {
+            margin-bottom: 32px;
+        }
+
+        .form-header h2 {
+            font-size: 22px;
+            font-weight: 700;
+            letter-spacing: -0.4px;
+            margin-bottom: 6px;
+        }
+
+        .form-header p {
+            font-size: 14px;
+            color: var(--text-muted);
+        }
+
+        /* Status terminal display */
+        .terminal-display {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            margin-bottom: 32px;
+            background: rgba(0,0,0,0.2);
+            border: 1px solid var(--glass-border);
+            padding: 20px;
+            border-radius: 14px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 13px;
+            text-align: left;
+            box-shadow: inset 0 2px 8px rgba(0,0,0,0.5);
+            animation: featureFade 0.7s ease both 0.4s;
+        }
+
+        .terminal-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .terminal-label {
+            color: var(--text-dim);
+        }
+
+        .terminal-val {
+            font-weight: bold;
+        }
+
+        .terminal-val.online {
+            color: var(--success);
+            text-shadow: 0 0 10px rgba(52,211,153,0.3);
+        }
+
+        .terminal-val.active-mode {
+            color: var(--accent);
+            text-shadow: 0 0 10px rgba(129,140,248,0.3);
+        }
+
+        /* Access Button */
+        .submit-btn {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, var(--primary), var(--accent2));
+            border: none;
+            border-radius: 13px;
+            color: white;
+            font-family: inherit;
+            font-size: 14.5px;
+            font-weight: 800;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            margin-top: 8px;
+            position: relative;
+            overflow: hidden;
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            box-shadow: 0 4px 15px rgba(99,102,241,0.2);
+        }
+
+        .submit-btn::before {
+            content: '';
+            position: absolute;
+            top: -50%; left: -50%;
+            width: 200%; height: 200%;
+            background: conic-gradient(from 0deg, #4285F4, #34A853, #FBBC05, #EA4335, #4285F4);
+            animation: rotate-conic 3s linear infinite;
+            z-index: -2;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+        }
+
+        .submit-btn::after {
+            content: '';
+            position: absolute;
+            inset: 1.5px;
+            background: #0a0b16; /* Fully opaque background on hover */
+            border-radius: inherit;
+            z-index: -1;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+        }
+
+        .submit-btn:hover::before, .submit-btn:hover::after {
+            opacity: 1;
+        }
+
+        .submit-btn:hover {
+            box-shadow: 0 0 20px rgba(66, 133, 244, 0.3), 0 0 40px rgba(52, 168, 83, 0.15);
+            transform: translateY(-2px) scale(1.02);
+            color: #ffffff;
+        }
+
+        .submit-btn:active {
+            transform: translateY(0) scale(0.97);
+        }
+
+        .secure-footer {
+            margin-top: 32px;
+            padding-top: 20px;
+            border-top: 1px solid var(--glass-border);
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+        }
+
+        .secure-tag {
+            font-size: 11px;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-weight: 500;
+        }
+        .secure-tag .dot {
+            width: 5px; height: 5px;
+            border-radius: 50%;
+            background: var(--success);
+            box-shadow: 0 0 6px rgba(52,211,153,0.5);
+            animation: blink 3s ease-in-out infinite;
+        }
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
+        }
+
+        /* ═══════ RESPONSIVE ═══════ */
+        @media (max-width: 768px) {
+            .auth-card {
+                grid-template-columns: 1fr;
+                max-width: 440px;
+            }
+            .brand-panel {
+                display: none;
+            }
+            .form-panel {
+                padding: 36px 28px;
+            }
+        }
+
+        @media (max-height: 700px) {
+            .form-panel { padding: 32px 36px; }
+            .brand-panel { padding: 32px; }
+        }
+
+        /* ════════════════ NEW SECTIONS STYLING ════════════════ */
+        
+        .section-title {
+            font-size: 32px;
+            font-weight: 800;
+            text-align: center;
+            letter-spacing: -0.8px;
+            margin-bottom: 48px;
+            background: linear-gradient(135deg, #fff 40%, var(--accent) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            position: relative;
+            display: inline-block;
+        }
+
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 50%;
+            width: 0;
+            height: 2px;
+            background: linear-gradient(90deg, var(--primary), var(--accent2), var(--accent));
+            border-radius: 1px;
+            transition: none;
+        }
+        .section-title.active::after {
+            animation: underlineDraw 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        @keyframes underlineDraw {
+            from { width: 0; left: 50%; }
+            to   { width: 60%; left: 20%; }
+        }
+
+        .tech-section, .timeline-section, .team-section {
+            text-align: center;
+            width: 100%;
+        }
+
+        /* Tech Stack Section */
+        .tech-section {
+            max-width: 920px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .tech-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
+            width: 100%;
+        }
+
+        .tech-card {
+            background: var(--bg-card);
+            backdrop-filter: blur(30px);
+            -webkit-backdrop-filter: blur(30px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 28px 24px;
+            position: relative;
+            z-index: 1;
+            overflow: hidden;
+            box-shadow: 
+                0 0 0 1px rgba(255, 255, 255, 0.02) inset,
+                0 15px 35px rgba(0, 0, 0, 0.4);
+            transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1), 
+                        box-shadow 0.6s cubic-bezier(0.16, 1, 0.3, 1), 
+                        border-color 0.6s ease;
+        }
+
+        .tech-card:hover {
+            transform: scale(1.04) translateY(-8px);
+            box-shadow: 
+                0 0 25px rgba(99, 102, 241, 0.25), 
+                0 20px 40px rgba(0, 0, 0, 0.6);
+            border-color: transparent;
+        }
+
+        .tech-card-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .tech-icon {
+            font-size: 24px;
+        }
+
+        .tech-card-header h3 {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--text-white);
+            letter-spacing: -0.3px;
+            text-align: left;
+        }
+
+        .tech-badge {
+            display: inline-block;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11.5px;
+            font-weight: 500;
+            color: var(--accent);
+            background: rgba(99, 102, 241, 0.08);
+            border: 1px solid rgba(99, 102, 241, 0.15);
+            padding: 4px 10px;
+            border-radius: 8px;
+            margin-bottom: 24px;
+            width: 100%;
+            text-align: center;
+        }
+
+        .tech-role-title {
+            font-size: 12.5px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            color: var(--text-dim);
+            margin-bottom: 12px;
+            text-align: left;
+        }
+
+        .tech-roles {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            text-align: left;
+        }
+
+        .tech-roles li {
+            font-size: 13.5px;
+            line-height: 1.6;
+            color: var(--text-dim);
+            position: relative;
+            padding-left: 14px;
+        }
+
+        .tech-roles li::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 8px;
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+            background: var(--accent2);
+        }
+
+        .tech-roles li strong {
+            color: var(--text-white);
+            font-weight: 600;
+        }
+
+        /* Timeline Section */
+        .timeline-section {
+            max-width: 920px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .timeline-container {
+            position: relative;
+            width: 100%;
+            margin-top: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 48px;
+        }
+
+        .timeline-line {
+            position: absolute;
+            left: 50%;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: linear-gradient(to bottom, var(--primary), var(--accent2), transparent);
+            transform: translateX(-50%);
+            box-shadow: 0 0 12px var(--primary-glow);
+        }
+
+        .timeline-item {
+            position: relative;
+            width: 50%;
+            display: flex;
+            justify-content: flex-end;
+            padding-right: 48px;
+        }
+
+        .timeline-item.right {
+            align-self: flex-end;
+            justify-content: flex-start;
+            padding-right: 0;
+            padding-left: 48px;
+        }
+
+        .timeline-marker {
+            position: absolute;
+            top: 20px;
+            left: 100%;
+            transform: translate(-50%, 0);
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: #030014;
+            border: 2px solid var(--primary);
+            box-shadow: 0 0 15px var(--primary-glow);
+            color: var(--text-white);
+            font-weight: 700;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 5;
+            transition: all 0.4s ease;
+        }
+
+        .timeline-item.right .timeline-marker {
+            left: 0;
+        }
+
+        .timeline-item:hover .timeline-marker {
+            background: var(--primary);
+            box-shadow: 0 0 20px var(--primary), 0 0 40px var(--primary-glow);
+            transform: translate(-50%, 0) scale(1.25);
+        }
+
+        .timeline-content {
+            background: var(--bg-card);
+            backdrop-filter: blur(30px);
+            -webkit-backdrop-filter: blur(30px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 28px;
+            width: 100%;
+            position: relative;
+            z-index: 1;
+            overflow: hidden;
+            box-shadow: 
+                0 0 0 1px rgba(255, 255, 255, 0.02) inset,
+                0 10px 30px rgba(0, 0, 0, 0.4);
+            text-align: left;
+            transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1), 
+                        box-shadow 0.6s cubic-bezier(0.16, 1, 0.3, 1), 
+                        border-color 0.6s ease;
+        }
+
+        .timeline-content:hover {
+            transform: scale(1.03) translateY(-4px);
+            box-shadow: 
+                0 0 25px rgba(167, 139, 250, 0.2), 
+                0 20px 40px rgba(0, 0, 0, 0.6);
+            border-color: transparent;
+        }
+
+        /* Conic Gradient border overlay for new section cards */
+        .tech-card::before, .timeline-content::before, .team-card::before {
+            content: '';
+            position: absolute;
+            top: -50%; left: -50%;
+            width: 200%; height: 200%;
+            background: conic-gradient(from 0deg, #4285f4, #34a853, #fbbc05, #ea4335, #4285f4);
+            animation: rotate-conic 3s linear infinite;
+            z-index: -2;
+            opacity: 0;
+            transition: opacity 0.35s ease;
+        }
+
+        .tech-card::after, .timeline-content::after, .team-card::after {
+            content: '';
+            position: absolute;
+            inset: 1.5px;
+            background: var(--bg-card); /* Mask background */
+            border-radius: inherit;
+            z-index: -1;
+            opacity: 0;
+            transition: opacity 0.35s ease, background 0.35s ease;
+        }
+
+        /* Show gradient borders only on hover */
+        .tech-card:hover::before, .timeline-content:hover::before, .team-card:hover::before,
+        .tech-card:hover::after, .timeline-content:hover::after, .team-card:hover::after {
+            opacity: 1;
+        }
+
+        .tech-card:hover::after, .timeline-content:hover::after, .team-card:hover::after {
+            background: #08061a !important; /* solid opaque mask on hover to match dashboard style */
+        }
+
+        .timeline-step {
+            display: inline-block;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--accent2);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+        }
+
+        .timeline-content h4 {
+            font-size: 17px;
+            font-weight: 700;
+            color: var(--text-white);
+            margin-bottom: 10px;
+            letter-spacing: -0.3px;
+        }
+
+        .timeline-content p {
+            font-size: 13.5px;
+            line-height: 1.6;
+            color: var(--text-dim);
+        }
+
+        .timeline-content code {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12.5px;
+            color: var(--accent);
+            background: rgba(255, 255, 255, 0.03);
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+
+        /* ════════════════ ANIMATIONS (SCROLL REVEAL) ════════════════ */
+        
+        .scroll-reveal-item {
+            opacity: 0;
+            transform: translateY(40px);
+            transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), 
+                        transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+            will-change: opacity, transform;
+        }
+
+        .scroll-reveal-item.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        @media (max-width: 900px) {
+            .tech-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            .timeline-line {
+                left: 20px;
+            }
+            .timeline-item {
+                width: 100%;
+                padding-right: 0;
+                padding-left: 48px;
+                align-self: flex-start !important;
+            }
+            .timeline-marker {
+                left: 20px !important;
+            }
+            .timeline-item.right {
+                padding-left: 48px;
+            }
+        }
+
+        /* ════════════════ DEVELOPMENT TEAM STYLING ════════════════ */
+        .team-section {
+            max-width: 1200px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .team-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 24px;
+            width: 100%;
+        }
+
+        .team-card {
+            background: var(--bg-card);
+            backdrop-filter: blur(30px);
+            -webkit-backdrop-filter: blur(30px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 2.5rem 1.5rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            position: relative;
+            z-index: 1;
+            overflow: hidden;
+            flex-shrink: 0;
+            box-shadow: 
+                0 0 0 1px rgba(255, 255, 255, 0.02) inset,
+                0 15px 35px rgba(0, 0, 0, 0.4);
+            transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1), 
+                        box-shadow 0.6s cubic-bezier(0.16, 1, 0.3, 1), 
+                        border-color 0.6s ease;
+        }
+
+        .team-card:hover {
+            transform: scale(1.05) translateY(-8px);
+            box-shadow: 
+                0 0 25px rgba(99, 102, 241, 0.25), 
+                0 20px 40px rgba(0, 0, 0, 0.6);
+            border-color: transparent;
+        }
+
+        .team-image-container {
+            width: 170px;
+            height: 170px;
+            border-radius: 50%;
+            border: 2px solid var(--glass-border);
+            padding: 4px;
+            margin-bottom: 24px;
+            transition: border-color 0.4s ease, transform 0.4s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .team-card:hover .team-image-container {
+            border-color: var(--primary);
+            transform: scale(1.05);
+        }
+
+        .team-image {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
+            object-position: center;
+            image-rendering: -webkit-optimize-contrast;
+            image-rendering: auto;
+            transform: translateZ(0);
+            backface-visibility: hidden;
+        }
+
+        .team-name {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--text-white);
+            margin-bottom: 12px;
+            letter-spacing: -0.3px;
+        }
+
+        .team-badge {
+            display: inline-block;
+            font-size: 11.5px;
+            font-weight: 600;
+            color: var(--text-dim);
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--glass-border);
+            padding: 4px 12px;
+            border-radius: 20px;
+            line-height: 1.3;
+            max-width: 100%;
+        }
+
+        .team-badge.lead {
+            color: var(--accent2);
+            background: rgba(167, 139, 250, 0.08);
+            border: 1px solid rgba(167, 139, 250, 0.2);
+        }
+
+        @media (max-width: 900px) {
+            .team-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 16px;
+            }
+        }
+
+        @media (max-width: 500px) {
+            .team-grid {
+                grid-template-columns: 1fr;
+                gap: 16px;
+            }
+        }
+
+        @keyframes rotate-conic {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <!-- Animated Background -->
+    <div class="scene">
+        <div class="grid-bg"></div>
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+        <div class="orb orb-3"></div>
+    </div>
+    <!-- Floating Particle Canvas -->
+    <canvas id="particle-canvas"></canvas>
+
+    <div class="page">
+        <!-- ═══ Title / Entry Card ═══ -->
+        <div class="auth-card">
+            <!-- Left Panel: Branding -->
+            <div class="brand-panel">
+                <div class="brand-content">
+                    <div class="brand-logo">🛡️</div>
+                    <h1 class="brand-title">Cyber Risk<br>Intelligence</h1>
+                    <p class="brand-subtitle">
+                        Real-time ML-powered network threat detection and logic-based diagnostic terminal.
+                    </p>
+                    <div class="features">
+                        <div class="feature">
+                            <div class="feature-dot">🧠</div>
+                            <span class="feature-text"><strong>Machine Learning</strong> — NSL-KDD threat classifier</span>
+                        </div>
+                        <div class="feature">
+                            <div class="feature-dot">🧩</div>
+                            <span class="feature-text"><strong>Prolog Reasoning</strong> — Expert expert vulnerability rules</span>
+                        </div>
+                        <div class="feature">
+                            <div class="feature-dot">🔒</div>
+                            <span class="feature-text"><strong>Secure Vault</strong> — AES-256-GCM encrypted database</span>
+                        </div>
+                        <div class="feature">
+                            <div class="feature-dot">📡</div>
+                            <span class="feature-text"><strong>Live Capture</strong> — Real-time socket-io network sniffer</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Panel: Access Console -->
+            <div class="form-panel">
+                <div class="form-header">
+                    <h2>Terminal Gateway</h2>
+                    <p>Security dashboard entry terminal</p>
+                </div>
+
+                <!-- Status Console -->
+                <div class="terminal-display">
+                    <div class="terminal-row">
+                        <span class="terminal-label">SECURE GATEWAY:</span>
+                        <span class="terminal-val active-mode">INITIALIZED</span>
+                    </div>
+                    <div class="terminal-row">
+                        <span class="terminal-label">ML DETECTOR:</span>
+                        <span class="terminal-val online">ONLINE</span>
+                    </div>
+                    <div class="terminal-row">
+                        <span class="terminal-label">PROLOG KB:</span>
+                        <span class="terminal-val online">ONLINE</span>
+                    </div>
+                    <div class="terminal-row">
+                        <span class="terminal-label">DATABASE VAULT:</span>
+                        <span class="terminal-val online">ONLINE</span>
+                    </div>
+                </div>
+
+                <!-- Action Button -->
+                <button class="submit-btn" onclick="window.location.href='/dashboard'">
+                    <span class="btn-text">ACCESS SECURITY DASHBOARD</span>
+                </button>
+
+                <div class="secure-footer">
+                    <span class="secure-tag"><span class="dot"></span> Real-time Analysis</span>
+                    <span class="secure-tag"><span class="dot"></span> Active Audit Ledger</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- ════════════════ Tech Stack Section ════════════════ -->
+        <section class="tech-section">
+            <h2 class="section-title">Security Architecture & Tech Stack</h2>
+            <div class="tech-grid">
+                <!-- Card 1 -->
+                <div class="tech-card scroll-reveal-item">
+                    <div class="tech-card-header">
+                        <span class="tech-icon">🌐</span>
+                        <h3>Frontend Control Panel</h3>
+                    </div>
+                    <div class="tech-badge">HTML5 · CSS3 · Vanilla JS</div>
+                    <p class="tech-role-title">Component Role:</p>
+                    <ul class="tech-roles">
+                        <li><strong>Interactive Charts</strong> — Renders real-time timelines and threat distribution via Chart.js.</li>
+                        <li><strong>Socket.IO Client</strong> — Handles full-duplex live stream connection to capture threads.</li>
+                        <li><strong>Mitigation Modal</strong> — Displays Prolog-derived analysis rules and actions on click.</li>
+                    </ul>
+                </div>
+                
+                <!-- Card 2 -->
+                <div class="tech-card scroll-reveal-item">
+                    <div class="tech-card-header">
+                        <span class="tech-icon">🧠</span>
+                        <h3>AI & Reasoning Core</h3>
+                    </div>
+                    <div class="tech-badge">Python · scikit-learn · Prolog</div>
+                    <p class="tech-role-title">Component Role:</p>
+                    <ul class="tech-roles">
+                        <li><strong>ML Anomaly Detection</strong> — Runs live NSL-KDD trained pipelines to classify packets.</li>
+                        <li><strong>Prolog Vulnerability Expert</strong> — Executes queries to diagnose threats and recommend actions.</li>
+                        <li><strong>Live Packet Capture</strong> — Sniffs and parses interfaces using <code>pyshark</code> wrappers.</li>
+                    </ul>
+                </div>
+                
+                <!-- Card 3 -->
+                <div class="tech-card scroll-reveal-item">
+                    <div class="tech-card-header">
+                        <span class="tech-icon">🔒</span>
+                        <h3>Database & Audit Vault</h3>
+                    </div>
+                    <div class="tech-badge">SQLite · AES-256-GCM · PDF</div>
+                    <p class="tech-role-title">Component Role:</p>
+                    <ul class="tech-roles">
+                        <li><strong>AES-256-GCM Encryption</strong> — Safeguards logs before writing to the database.</li>
+                        <li><strong>Secure Log Vault</strong> — Stores classified threat metadata for compliance audits.</li>
+                        <li><strong>PDF Report Generation</strong> — Generates formal PDF audit reports for forensic investigators.</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- ════════════════ Data Flow Timeline Roadmap ════════════════ -->
+        <section class="timeline-section">
+            <h2 class="section-title">Threat Ingestion & Analysis Lifecycle</h2>
+            <div class="timeline-container">
+                <div class="timeline-line"></div>
+                
+                <!-- Step 1 -->
+                <div class="timeline-item scroll-reveal-item left">
+                    <div class="timeline-marker">1</div>
+                    <div class="timeline-content">
+                        <span class="timeline-step">Step 1</span>
+                        <h4>Packet Ingestion & Feature Extraction</h4>
+                        <p>Network packets are captured in real-time (via <code>pyshark</code>) or parsed from uploaded <code>.pcap</code> files. Features including protocol, ports, packet length, and payload identifiers are extracted instantly.</p>
+                    </div>
+                </div>
+                
+                <!-- Step 2 -->
+                <div class="timeline-item scroll-reveal-item right">
+                    <div class="timeline-marker">2</div>
+                    <div class="timeline-content">
+                        <span class="timeline-step">Step 2</span>
+                        <h4>Machine Learning Anomaly Detection</h4>
+                        <p>Extracted features are scaled and predicted by a trained scikit-learn model. Safe traffic is logged directly, while anomalous traffic profiles are routed to the expert diagnostic engine.</p>
+                    </div>
+                </div>
+                
+                <!-- Step 3 -->
+                <div class="timeline-item scroll-reveal-item left">
+                    <div class="timeline-marker">3</div>
+                    <div class="timeline-content">
+                        <span class="timeline-step">Step 3</span>
+                        <h4>Prolog Expert Logic Diagnosis</h4>
+                        <p>The anomaly characteristics query the Prolog knowledge base (<code>knowledge_base.pl</code>). The expert system uses formal reasoning logic to pinpoint the attack vector and recommend precise mitigations.</p>
+                    </div>
+                </div>
+                
+                <!-- Step 4 -->
+                <div class="timeline-item scroll-reveal-item right">
+                    <div class="timeline-marker">4</div>
+                    <div class="timeline-content">
+                        <span class="timeline-step">Step 4</span>
+                        <h4>Encrypted Database Logging & Reports</h4>
+                        <p>Threat profiles are encrypted using AES-256-GCM and logged in the secure SQLite ledger. Forensics auditors can generate formal PDF reports for administrative review.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ════════════════ Development Team Section ════════════════ -->
+        <section class="team-section">
+            <h2 class="section-title">Development Team</h2>
+            <div class="team-grid">
+                <!-- Card 1 -->
+                <div class="team-card scroll-reveal-item">
+                    <div class="team-image-container">
+                        <img src="/static/afaaq.jpg" alt="Afaaq Anwar" class="team-image">
+                    </div>
+                    <h3 class="team-name">Afaaq Anwar</h3>
+                    <div class="team-badge lead">Lead Developer & Security Architect</div>
+                </div>
+
+                <!-- Card 2 -->
+                <div class="team-card scroll-reveal-item">
+                    <div class="team-image-container">
+                        <img src="/static/arslan.jpg" alt="M Arslan" class="team-image">
+                    </div>
+                    <h3 class="team-name">M Arslan</h3>
+                    <div class="team-badge">Project Collaborator</div>
+                </div>
+
+                <!-- Card 3 -->
+                <div class="team-card scroll-reveal-item">
+                    <div class="team-image-container">
+                        <img src="/static/ahsan.jpg" alt="Ahsan Shakeel" class="team-image">
+                    </div>
+                    <h3 class="team-name">Ahsan Shakeel</h3>
+                    <div class="team-badge">Project Collaborator</div>
+                </div>
+
+                <!-- Card 4 -->
+                <div class="team-card scroll-reveal-item">
+                    <div class="team-image-container">
+                        <img src="/static/taimoor.jpg" alt="Taimoor Ali" class="team-image">
+                    </div>
+                    <h3 class="team-name">Taimoor Ali</h3>
+                    <div class="team-badge">Project Collaborator</div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        // ════════════════ FLOATING PARTICLE SYSTEM ════════════════
+        (function initParticles() {
+            const canvas = document.getElementById('particle-canvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            let particles = [];
+            const PARTICLE_COUNT = 50;
+
+            function resize() {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+            }
+            resize();
+            window.addEventListener('resize', resize);
+
+            for (let i = 0; i < PARTICLE_COUNT; i++) {
+                particles.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height,
+                    r: Math.random() * 1.5 + 0.5,
+                    dx: (Math.random() - 0.5) * 0.3,
+                    dy: (Math.random() - 0.5) * 0.3,
+                    opacity: Math.random() * 0.4 + 0.1,
+                });
+            }
+
+            function draw() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                particles.forEach(p => {
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+                    ctx.fillStyle = `rgba(129, 140, 248, ${p.opacity})`;
+                    ctx.fill();
+                    p.x += p.dx;
+                    p.y += p.dy;
+                    if (p.x < 0) p.x = canvas.width;
+                    if (p.x > canvas.width) p.x = 0;
+                    if (p.y < 0) p.y = canvas.height;
+                    if (p.y > canvas.height) p.y = 0;
+                });
+                requestAnimationFrame(draw);
+            }
+            draw();
+        })();
+
+        // ════════════════ TYPING EFFECT ON SUBTITLE ════════════════
+        (function initTypingEffect() {
+            const el = document.querySelector('.brand-subtitle');
+            if (!el) return;
+            const fullText = el.textContent.trim();
+            el.innerHTML = '<span class="typing-cursor"></span>';
+            let i = 0;
+            function typeChar() {
+                if (i < fullText.length) {
+                    el.innerHTML = fullText.substring(0, i + 1) + '<span class="typing-cursor"></span>';
+                    i++;
+                    setTimeout(typeChar, 22 + Math.random() * 20);
+                } else {
+                    setTimeout(() => {
+                        const cursor = el.querySelector('.typing-cursor');
+                        if (cursor) cursor.style.display = 'none';
+                    }, 1500);
+                }
+            }
+            setTimeout(typeChar, 800);
+        })();
+
+        // ════════════════ SCROLL REVEAL INTERSECTION OBSERVER ════════════════
+        document.addEventListener('DOMContentLoaded', () => {
+            const observerOptions = {
+                root: null,
+                rootMargin: '0px',
+                threshold: 0.1
+            };
+
+            const observer = new IntersectionObserver((entries, observer) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('active');
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, observerOptions);
+
+            const revealItems = document.querySelectorAll('.scroll-reveal-item');
+            revealItems.forEach(item => {
+                observer.observe(item);
+            });
+
+            const titleObserver = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('active');
+                        titleObserver.unobserve(entry.target);
+                    }
+                });
+            }, { threshold: 0.3 });
+
+            document.querySelectorAll('.section-title').forEach(title => {
+                titleObserver.observe(title);
+            });
+        });
+    </script>
+</body>
+</html>

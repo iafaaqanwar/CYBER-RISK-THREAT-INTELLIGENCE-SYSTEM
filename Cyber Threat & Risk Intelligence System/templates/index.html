@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Real-time Cyber Risk & Threat Intelligence Dashboard — ML-powered network threat detection with Prolog-based diagnosis and Zero Trust encrypted logging.">
+
+    <title>Cyber Risk & Threat Intelligence System</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+
+    <!-- Socket.IO Client -->
+    <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+
+    <!-- Stylesheet -->
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+
+    <!-- ============================================ -->
+    <!-- AMBIENT BACKGROUND SCENE                     -->
+    <!-- ============================================ -->
+    <div class="scene">
+        <div class="grid-bg"></div>
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+        <div class="orb orb-3"></div>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- SCANLINE OVERLAY (visual effect)             -->
+    <!-- ============================================ -->
+    <div class="scanline-overlay"></div>
+
+    <!-- ============================================ -->
+    <!-- HEADER                                       -->
+    <!-- ============================================ -->
+    <header id="main-header">
+        <div class="header-content">
+            <div class="logo-section">
+                <div class="logo-icon">🛡️</div>
+                <div class="logo-text">
+                    <h1>CYBER RISK INTELLIGENCE</h1>
+                    <span class="logo-subtitle">Threat Detection & Mitigation System</span>
+                </div>
+            </div>
+            <div class="status-indicators">
+                <div class="status-item" id="status-ml">
+                    <span class="status-dot"></span>
+                    <span class="status-label">ML Model</span>
+                </div>
+                <div class="status-item" id="status-prolog">
+                    <span class="status-dot"></span>
+                    <span class="status-label">Prolog Engine</span>
+                </div>
+                <div class="status-item" id="status-capture">
+                    <span class="status-dot"></span>
+                    <span class="status-label">Capture</span>
+                </div>
+                <div class="status-item" id="status-vault">
+                    <span class="status-dot"></span>
+                    <span class="status-label">Vault</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- ============================================ -->
+    <!-- MAIN DASHBOARD CONTAINER                     -->
+    <!-- ============================================ -->
+    <main id="dashboard">
+
+        <!-- ======================================== -->
+        <!-- STATS BAR                                -->
+        <!-- ======================================== -->
+        <section class="stats-bar" id="stats-bar">
+            <div class="stat-card" id="stat-total">
+                <div class="stat-icon">📡</div>
+                <div class="stat-info">
+                    <div class="stat-value" id="stat-total-value">0</div>
+                    <div class="stat-label">Total Packets</div>
+                </div>
+            </div>
+            <div class="stat-card" id="stat-normal">
+                <div class="stat-icon">✅</div>
+                <div class="stat-info">
+                    <div class="stat-value" id="stat-normal-value">0</div>
+                    <div class="stat-label">Normal</div>
+                </div>
+            </div>
+            <div class="stat-card stat-alert" id="stat-anomalous">
+                <div class="stat-icon">⚠️</div>
+                <div class="stat-info">
+                    <div class="stat-value" id="stat-anomalous-value">0</div>
+                    <div class="stat-label">Anomalous</div>
+                </div>
+            </div>
+            <div class="stat-card" id="stat-threats">
+                <div class="stat-icon">🔒</div>
+                <div class="stat-info">
+                    <div class="stat-value" id="stat-vault-value">0</div>
+                    <div class="stat-label">Vault Entries</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ======================================== -->
+        <!-- MODE SELECTOR                            -->
+        <!-- ======================================== -->
+        <section class="mode-selector" id="mode-selector">
+            <button class="mode-btn active" id="btn-mode-upload" data-mode="upload">
+                <span class="mode-icon">📁</span>
+                <span class="mode-text">File Upload</span>
+                <span class="mode-desc">Analyze .pcap files</span>
+            </button>
+            <button class="mode-btn" id="btn-mode-live" data-mode="live">
+                <span class="mode-icon">📡</span>
+                <span class="mode-text">Live Capture</span>
+                <span class="mode-desc">Real-time sniffing</span>
+            </button>
+        </section>
+
+        <!-- ======================================== -->
+        <!-- MODE 1: FILE UPLOAD PANEL                -->
+        <!-- ======================================== -->
+        <section class="panel" id="panel-upload">
+            <div class="panel-header">
+                <h2>📁 PCAP File Analysis</h2>
+                <span class="panel-badge">Mode 1: Threat Simulation</span>
+            </div>
+            <div class="panel-body">
+                <div class="upload-zone" id="upload-zone">
+                    <div class="upload-icon">⬆️</div>
+                    <p class="upload-text">Drag & drop a <strong>.pcap</strong> file here</p>
+                    <p class="upload-subtext">or click to browse</p>
+                    <input type="file" id="pcap-file-input" accept=".pcap,.pcapng,.cap" hidden>
+                    <div class="upload-progress" id="upload-progress">
+                        <div class="progress-bar" id="progress-bar"></div>
+                        <span class="progress-text" id="progress-text">Uploading...</span>
+                    </div>
+                </div>
+                <div class="upload-info" id="upload-info" style="display:none;">
+                    <span id="upload-filename"></span>
+                    <button class="btn-clear" id="btn-clear-upload">✕</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- ======================================== -->
+        <!-- MODE 2: LIVE CAPTURE PANEL               -->
+        <!-- ======================================== -->
+        <section class="panel" id="panel-live" style="display:none;">
+            <div class="panel-header">
+                <h2>📡 Live Network Capture</h2>
+                <span class="panel-badge">Mode 2: Real-Time Sniffing</span>
+            </div>
+            <div class="panel-body">
+                <div class="live-controls">
+                    <div class="interface-selector-group">
+                        <label for="interface-select">Interface:</label>
+                        <select id="interface-select" class="cyber-select">
+                            <option value="">Loading Interfaces...</option>
+                        </select>
+                    </div>
+                    <button class="btn-cyber btn-start" id="btn-start-capture">
+                        <span>▶</span> Start Live Capture
+                    </button>
+                    <button class="btn-cyber btn-stop" id="btn-stop-capture" disabled>
+                        <span>⏹</span> Stop Capture
+                    </button>
+                    <div class="live-counter">
+                        <span class="counter-label">Packets Captured:</span>
+                        <span class="counter-value" id="live-packet-count">0</span>
+                    </div>
+                </div>
+
+                <!-- Live Chart -->
+                <div class="chart-card glass-card" id="live-chart-card">
+                    <h3 class="chart-title">Real-Time Packet Throughput</h3>
+                    <div class="chart-container" id="live-chart-container">
+                        <canvas id="live-chart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ======================================== -->
+        <!-- ANALYSIS RESULTS CHART                   -->
+        <!-- ======================================== -->
+        <section class="panel" id="panel-chart" style="display:none;">
+            <div class="panel-header">
+                <h2>📊 Traffic Analysis</h2>
+            </div>
+            <div class="panel-body">
+                <div class="chart-grid">
+                    <div class="chart-card glass-card full-width" id="timeline-chart-card">
+                        <h3 class="chart-title">Packet Timeline</h3>
+                        <div class="chart-container">
+                            <canvas id="timeline-chart"></canvas>
+                        </div>
+                    </div>
+                    <div class="chart-card glass-card" id="threat-types-chart-card">
+                        <h3 class="chart-title">Threat Types Histogram</h3>
+                        <div class="chart-container">
+                            <canvas id="threat-types-chart"></canvas>
+                        </div>
+                    </div>
+                    <div class="chart-card glass-card" id="risk-levels-chart-card">
+                        <h3 class="chart-title">Risk Levels Histogram</h3>
+                        <div class="chart-container">
+                            <canvas id="risk-levels-chart"></canvas>
+                        </div>
+                    </div>
+                    <div class="chart-card glass-card" id="threat-pie-chart-card">
+                        <h3 class="chart-title">Threat Distribution</h3>
+                        <div class="chart-container">
+                            <canvas id="threat-pie-chart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ======================================== -->
+        <!-- THREAT ANALYSIS RESULTS TABLE            -->
+        <!-- ======================================== -->
+        <section class="panel" id="panel-results" style="display:none;">
+            <div class="panel-header">
+                <h2>🔍 Threat Analysis Results</h2>
+                <span class="panel-badge threat-count" id="threat-count-badge">0 Threats</span>
+            </div>
+            <div class="panel-body">
+                <!-- Threat Filtering Controls -->
+                <div class="filter-bar">
+                    <div class="filter-group">
+                        <label for="filter-threat-type">Threat Type:</label>
+                        <select id="filter-threat-type" class="cyber-select" style="min-width: 180px; max-width: 250px;">
+                            <option value="all">All Threat Types</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label for="filter-risk-level">Risk Level:</label>
+                        <select id="filter-risk-level" class="cyber-select" style="min-width: 150px; max-width: 200px;">
+                            <option value="all">All Risk Levels</option>
+                            <option value="critical">Critical</option>
+                            <option value="high">High</option>
+                            <option value="medium">Medium</option>
+                            <option value="low">Low</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="table-container">
+                    <table class="threat-table" id="threat-table">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Source IP</th>
+                                <th>Dest IP</th>
+                                <th>Protocol</th>
+                                <th>Port</th>
+                                <th>Threat Type</th>
+                                <th>Risk</th>
+                                <th>Confidence</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="threat-table-body">
+                            <!-- Populated dynamically by app.js -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- ======================================== -->
+        <!-- MITIGATION DETAIL MODAL                  -->
+        <!-- ======================================== -->
+        <div class="modal-overlay" id="modal-overlay" style="display:none;">
+            <div class="modal" id="mitigation-modal">
+                <div class="modal-header">
+                    <h2 id="modal-title">Threat Details</h2>
+                    <button class="btn-close" id="btn-close-modal">✕</button>
+                </div>
+                <div class="modal-body" id="modal-body">
+                    <!-- Populated dynamically -->
+                </div>
+                <div class="modal-footer">
+                    <button class="btn-cyber btn-report" id="btn-generate-report">
+                        📄 Generate PDF Report
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ======================================== -->
+        <!-- SECURE VAULT VIEWER                      -->
+        <!-- ======================================== -->
+        <section class="panel" id="panel-vault">
+            <div class="panel-header">
+                <h2>🔒 Secure Log Vault</h2>
+                <div class="vault-controls">
+                    <span class="vault-badge">AES-256-GCM Encrypted</span>
+                    <button class="btn-cyber btn-small" id="btn-refresh-vault">↻ Refresh</button>
+                </div>
+            </div>
+            <div class="panel-body">
+                <div class="table-container">
+                    <table class="threat-table vault-table" id="vault-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Timestamp</th>
+                                <th>Source IP</th>
+                                <th>Threat Type</th>
+                                <th>Risk</th>
+                                <th>Report</th>
+                            </tr>
+                        </thead>
+                        <tbody id="vault-table-body">
+                            <tr class="empty-row">
+                                <td colspan="6">No encrypted logs yet. Analyze traffic to populate.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- ============================================ -->
+    <!-- FOOTER                                       -->
+    <!-- ============================================ -->
+    <footer id="main-footer">
+        <div class="footer-content">
+            <span>Cyber Risk & Threat Intelligence System</span>
+            <span class="footer-sep">|</span>
+            <span>ML + Prolog + Zero Trust</span>
+            <span class="footer-sep">|</span>
+            <span id="footer-time"></span>
+        </div>
+    </footer>
+
+    <!-- ============================================ -->
+    <!-- TOAST NOTIFICATIONS                          -->
+    <!-- ============================================ -->
+    <div class="toast-container" id="toast-container"></div>
+
+    <!-- Application JavaScript -->
+    <script src="/static/js/app.js"></script>
+</body>
+</html>
